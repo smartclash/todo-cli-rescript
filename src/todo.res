@@ -72,6 +72,10 @@ let readFile = () => {
 }
 
 let appendToFile = text => appendFileSync(todoFileName, text, {encoding: encoding, flag: "a+"})
+let writeToFile = lines => {
+  let text = lines->Js.Array2.joinWith(eol)
+  todoFileName->writeFileSync(text, {encoding: encoding})
+}
 
 if isEmpty(command) {
   help()
