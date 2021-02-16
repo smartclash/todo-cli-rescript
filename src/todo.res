@@ -57,18 +57,21 @@ type process = {argv: array<string>}
 let argv = process.argv
 let command = argv[2]
 let arg = argv[3]
+let todoFileName = "todo.txt"
 
 let isEmpty = text => text->Js.String2.trim->Js.String2.length > 0
 let help = () => Js.log(helpString)
 
 let readFile = () => {
-  if (!existsSync("todo.txt")) {
+  if (!existsSync(todoFileName)) {
     []
   } else {
-    let text = readFileSync("todo.txt", {encoding: encoding, flag: "r"})
+    let text = readFileSync(todoFileName, {encoding: encoding, flag: "r"})
     text->Js.String2.split(eol)
   }
 }
+
+let appendToFile = text => appendFileSync(todoFileName, text, {encoding: encoding, flag: "a+"})
 
 if isEmpty(command) {
   help()

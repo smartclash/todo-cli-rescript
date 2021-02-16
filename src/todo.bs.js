@@ -22,6 +22,8 @@ var command = Caml_array.get(argv, 2);
 
 var arg = Caml_array.get(argv, 3);
 
+var todoFileName = "todo.txt";
+
 function isEmpty(text) {
   return text.trim().length > 0;
 }
@@ -32,14 +34,22 @@ function help(param) {
 }
 
 function readFile(param) {
-  if (!Fs.existsSync("todo.txt")) {
+  if (!Fs.existsSync(todoFileName)) {
     return [];
   }
-  var text = Fs.readFileSync("todo.txt", {
+  var text = Fs.readFileSync(todoFileName, {
         encoding: encoding,
         flag: "r"
       });
   return text.split(Os.EOL);
+}
+
+function appendToFile(text) {
+  Fs.appendFileSync(todoFileName, text, {
+        encoding: encoding,
+        flag: "a+"
+      });
+  
 }
 
 if (isEmpty(command)) {
@@ -76,7 +86,9 @@ exports.encoding = encoding;
 exports.argv = argv;
 exports.command = command;
 exports.arg = arg;
+exports.todoFileName = todoFileName;
 exports.isEmpty = isEmpty;
 exports.help = help;
 exports.readFile = readFile;
+exports.appendToFile = appendToFile;
 /* argv Not a pure module */
