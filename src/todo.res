@@ -1,3 +1,11 @@
+let helpString = "Usage :-
+$ ./todo add \"todo item\"  # Add a new todo
+$ ./todo ls               # Show remaining todos
+$ ./todo del NUMBER       # Delete a todo
+$ ./todo done NUMBER      # Complete a todo
+$ ./todo help             # Show usage
+$ ./todo report           # Statistics";
+
 /* Returns date with the format: 2021-02-04 */
 let getToday: unit => string = %raw(`
 function() {
@@ -47,13 +55,23 @@ type process = {argv: array<string>}
 @val external process: process = "process"
 
 let argv = process.argv
-let command = argv[2];
-let arg = argv[3];
+let command = argv[2]
+let arg = argv[3]
 
-let isEmpty = text => text->Js.String2.trim->Js.String2.length > 0;
+let isEmpty = text => text->Js.String2.trim->Js.String2.length > 0
+let help = () => Js.log(helpString)
 
-if (isEmpty(command)) {
-  Js.log("empty command")
+let readFile = () => {
+  if (!existsSync("todo.txt")) {
+    []
+  } else {
+    let text = readFileSync("todo.txt", {encoding: encoding, flag: "r"})
+    text->Js.String2.split(eol)
+  }
+}
+
+if isEmpty(command) {
+  help()
 } else {
   switch command->Js.String2.trim->Js.String2.toLowerCase {
     | "help" => Js.log("help")
@@ -62,5 +80,6 @@ if (isEmpty(command)) {
     | "del" => Js.log("del")
     | "done" => Js.log("done")
     | "report" => Js.log("report")
+    | _ => help()
   }
 }
