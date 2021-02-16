@@ -75,7 +75,13 @@ let readFile = filename => {
 let appendToFile = (filename, text) => appendFileSync(filename, text, {encoding: encoding, flag: "a+"})
 let writeToFile = (filename, lines) => {
   let text = lines->Js.Array2.joinWith(eol)
-  filename->writeFileSync(text, {encoding: encoding})
+  filename->writeFileSync(text, {encoding: encoding, flag: "w"})
+}
+
+let updateFile = (filename, updaterFn: (array<string>) => array<string>) => {
+  let contents = filename->readFile
+  let modifiedContents = contents->updaterFn
+  filename->writeToFile(modifiedContents)
 }
 
 if isEmpty(command) {

@@ -3,6 +3,7 @@
 
 var Fs = require("fs");
 var Os = require("os");
+var Curry = require("bs-platform/lib/js/curry.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 
 var helpString = "Usage :-\n$ ./todo add \"todo item\"  # Add a new todo\n$ ./todo ls               # Show remaining todos\n$ ./todo del NUMBER       # Delete a todo\n$ ./todo done NUMBER      # Complete a todo\n$ ./todo help             # Show usage\n$ ./todo report           # Statistics";
@@ -22,8 +23,6 @@ var command = Caml_array.get(argv, 2);
 
 var arg = Caml_array.get(argv, 3);
 
-var todoFileName = "todo.txt";
-
 function isEmpty(text) {
   return text.trim().length > 0;
 }
@@ -33,23 +32,38 @@ function help(param) {
   
 }
 
-function readFile(param) {
-  if (!Fs.existsSync(todoFileName)) {
+function readFile(filename) {
+  if (!Fs.existsSync(filename)) {
     return [];
   }
-  var text = Fs.readFileSync(todoFileName, {
+  var text = Fs.readFileSync(filename, {
         encoding: encoding,
         flag: "r"
       });
   return text.split(Os.EOL);
 }
 
-function appendToFile(text) {
-  Fs.appendFileSync(todoFileName, text, {
+function appendToFile(filename, text) {
+  Fs.appendFileSync(filename, text, {
         encoding: encoding,
         flag: "a+"
       });
   
+}
+
+function writeToFile(filename, lines) {
+  var text = lines.join(Os.EOL);
+  Fs.writeFileSync(filename, text, {
+        encoding: encoding,
+        flag: "w"
+      });
+  
+}
+
+function updateFile(filename, updaterFn) {
+  var contents = readFile(filename);
+  var modifiedContents = Curry._1(updaterFn, contents);
+  return writeToFile(filename, modifiedContents);
 }
 
 if (isEmpty(command)) {
@@ -80,15 +94,22 @@ if (isEmpty(command)) {
   }
 }
 
+var pendingTodoFile = "todo.txt";
+
+var completedTodoFile = "done.txt";
+
 exports.helpString = helpString;
 exports.getToday = getToday;
 exports.encoding = encoding;
 exports.argv = argv;
 exports.command = command;
 exports.arg = arg;
-exports.todoFileName = todoFileName;
+exports.pendingTodoFile = pendingTodoFile;
+exports.completedTodoFile = completedTodoFile;
 exports.isEmpty = isEmpty;
 exports.help = help;
 exports.readFile = readFile;
 exports.appendToFile = appendToFile;
+exports.writeToFile = writeToFile;
+exports.updateFile = updateFile;
 /* argv Not a pure module */
