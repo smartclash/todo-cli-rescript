@@ -54,6 +54,8 @@ if existsSync("todo.txt") {
 type process = {argv: array<string>}
 @val external process: process = "process"
 
+@val external number: (string) => int = "Number"
+
 let argv = process.argv
 let command = argv[2]
 let arg = argv[3]
@@ -109,6 +111,23 @@ let addTodo = text => {
   Js.log("Added todo: " ++ text)
 }
 
+let deleteTodo = index => {
+  if isEmpty(index) {
+    Js.log("Error: Missing NUMBER for deleting todo")
+  }
+
+  let todoIndex = index->number
+  updateFile(pendingTodoFile, todos => {
+    if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
+      Js.log("Error: todo #" ++ index ++ " does not exist. Nothing deleted.")
+      todos
+    } else {
+      Js.log("Deleted todo #" ++ index)
+      todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+    }
+  })
+}
+
 if isEmpty(command) {
   help()
 } else {
@@ -116,7 +135,7 @@ if isEmpty(command) {
     | "help" => help()
     | "ls" => list()
     | "add" => addTodo(arg)
-    | "del" => Js.log("del")
+    | "del" => deleteTodo(arg)
     | "done" => Js.log("done")
     | "report" => Js.log("report")
     | _ => help()

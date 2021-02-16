@@ -92,6 +92,22 @@ function addTodo(text) {
   
 }
 
+function deleteTodo(index) {
+  if (isEmpty(index)) {
+    console.log("Error: Missing NUMBER for deleting todo");
+  }
+  var todoIndex = Number(index);
+  return updateFile(pendingTodoFile, (function (todos) {
+                if (todoIndex < 1 || todoIndex > todos.length) {
+                  console.log("Error: todo #" + index + " does not exist. Nothing deleted.");
+                  return todos;
+                } else {
+                  console.log("Deleted todo #" + index);
+                  return todos.slice(todoIndex, 1);
+                }
+              }));
+}
+
 if (isEmpty(command)) {
   console.log(helpString);
 } else {
@@ -101,7 +117,7 @@ if (isEmpty(command)) {
         addTodo(arg);
         break;
     case "del" :
-        console.log("del");
+        deleteTodo(arg);
         break;
     case "done" :
         console.log("done");
@@ -138,4 +154,5 @@ exports.writeToFile = writeToFile;
 exports.updateFile = updateFile;
 exports.list = list;
 exports.addTodo = addTodo;
+exports.deleteTodo = deleteTodo;
 /* argv Not a pure module */
