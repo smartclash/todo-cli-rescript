@@ -1,8 +1,3 @@
-/*
-Sample JS implementation of Todo CLI that you can attempt to port:
-https://gist.github.com/jasim/99c7b54431c64c0502cfe6f677512a87
-*/
-
 /* Returns date with the format: 2021-02-04 */
 let getToday: unit => string = %raw(`
 function() {
@@ -39,11 +34,33 @@ NOTE: The code below is provided just to show you how to use the
 date and file functions defined above. Remove it to begin your implementation.
 */
 
-Js.log("Hello! today is " ++ getToday())
+/* Js.log("Hello! today is " ++ getToday())
 
 if existsSync("todo.txt") {
   Js.log("Todo file exists.")
 } else {
   writeFileSync("todo.txt", "This is todo!" ++ eol, {encoding: encoding, flag: "w"})
   Js.log("Todo file created.")
+} */
+
+type process = {argv: array<string>}
+@val external process: process = "process"
+
+let argv = process.argv
+let command = argv[2];
+let arg = argv[3];
+
+let isEmpty = text => text->Js.String2.trim->Js.String2.length > 0;
+
+if (isEmpty(command)) {
+  Js.log("empty command")
+} else {
+  switch command->Js.String2.trim->Js.String2.toLowerCase {
+    | "help" => Js.log("help")
+    | "ls" => Js.log("ls")
+    | "add" => Js.log("add")
+    | "del" => Js.log("del")
+    | "done" => Js.log("done")
+    | "report" => Js.log("report")
+  }
 }
