@@ -73,6 +73,7 @@ let readFile = filename => {
 }
 
 let appendToFile = (filename, text) => appendFileSync(filename, text, {encoding: encoding, flag: "a+"})
+
 let writeToFile = (filename, lines) => {
   let text = lines->Js.Array2.joinWith(eol)
   filename->writeFileSync(text, {encoding: encoding, flag: "w"})
@@ -84,12 +85,27 @@ let updateFile = (filename, updaterFn: (array<string>) => array<string>) => {
   filename->writeToFile(modifiedContents)
 }
 
+let list = () => {
+  let todos = readFile(pendingTodoFile)
+  let todosLength = todos->Js.Array2.length
+
+  if todosLength == 0 {
+    Js.log("There are no pending todos!")
+  } else {
+    todos
+      ->Js.Array2.reverseInPlace
+      ->Js.Array2.mapi((todo, index) => "[" ++ Belt.Int.toString(todosLength - index) ++ "] " ++ todo)
+      ->Js.Array2.joinWith("\n")
+      ->Js.log
+  }
+}
+
 if isEmpty(command) {
   help()
 } else {
   switch command->Js.String2.trim->Js.String2.toLowerCase {
-    | "help" => Js.log("help")
-    | "ls" => Js.log("ls")
+    | "help" => help()
+    | "ls" => list()
     | "add" => Js.log("add")
     | "del" => Js.log("del")
     | "done" => Js.log("done")

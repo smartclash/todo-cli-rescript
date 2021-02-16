@@ -23,6 +23,8 @@ var command = Caml_array.get(argv, 2);
 
 var arg = Caml_array.get(argv, 3);
 
+var pendingTodoFile = "todo.txt";
+
 function isEmpty(text) {
   return text.trim().length > 0;
 }
@@ -66,6 +68,19 @@ function updateFile(filename, updaterFn) {
   return writeToFile(filename, modifiedContents);
 }
 
+function list(param) {
+  var todos = readFile(pendingTodoFile);
+  var todosLength = todos.length;
+  if (todosLength === 0) {
+    console.log("There are no pending todos!");
+  } else {
+    console.log(todos.reverse().map(function (todo, index) {
+                return "[" + String(todosLength - index | 0) + "] " + todo;
+              }).join("\n"));
+  }
+  
+}
+
 if (isEmpty(command)) {
   console.log(helpString);
 } else {
@@ -81,10 +96,10 @@ if (isEmpty(command)) {
         console.log("done");
         break;
     case "help" :
-        console.log("help");
+        console.log(helpString);
         break;
     case "ls" :
-        console.log("ls");
+        list(undefined);
         break;
     case "report" :
         console.log("report");
@@ -93,8 +108,6 @@ if (isEmpty(command)) {
       console.log(helpString);
   }
 }
-
-var pendingTodoFile = "todo.txt";
 
 var completedTodoFile = "done.txt";
 
@@ -112,4 +125,5 @@ exports.readFile = readFile;
 exports.appendToFile = appendToFile;
 exports.writeToFile = writeToFile;
 exports.updateFile = updateFile;
+exports.list = list;
 /* argv Not a pure module */
