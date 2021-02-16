@@ -100,13 +100,22 @@ let list = () => {
   }
 }
 
+let addTodo = text => {
+  if isEmpty(text) {
+    Js.log("Error: Missing todo string. Nothing added!")
+  }
+
+  updateFile(pendingTodoFile, todos => todos->Js.Array2.concat([text]))
+  Js.log("Added todo: " ++ text)
+}
+
 if isEmpty(command) {
   help()
 } else {
   switch command->Js.String2.trim->Js.String2.toLowerCase {
     | "help" => help()
     | "ls" => list()
-    | "add" => Js.log("add")
+    | "add" => addTodo(arg)
     | "del" => Js.log("del")
     | "done" => Js.log("done")
     | "report" => Js.log("report")

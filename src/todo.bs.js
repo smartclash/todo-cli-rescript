@@ -81,13 +81,24 @@ function list(param) {
   
 }
 
+function addTodo(text) {
+  if (isEmpty(text)) {
+    console.log("Error: Missing todo string. Nothing added!");
+  }
+  updateFile(pendingTodoFile, (function (todos) {
+          return todos.concat([text]);
+        }));
+  console.log("Added todo: " + text);
+  
+}
+
 if (isEmpty(command)) {
   console.log(helpString);
 } else {
   var match = command.trim().toLowerCase();
   switch (match) {
     case "add" :
-        console.log("add");
+        addTodo(arg);
         break;
     case "del" :
         console.log("del");
@@ -126,4 +137,5 @@ exports.appendToFile = appendToFile;
 exports.writeToFile = writeToFile;
 exports.updateFile = updateFile;
 exports.list = list;
+exports.addTodo = addTodo;
 /* argv Not a pure module */
