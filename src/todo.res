@@ -150,6 +150,12 @@ let markDone = index => {
   completedTodoFile->appendToFile(completedTodo[0] ++ eol)
   Js.log("Marked todo #" ++ index ++ " as done.")
 }
+let report = () => {
+  let pending = readFile(pendingTodoFile)->Js.Array2.length - 1
+  let completed = readFile(completedTodoFile)->Js.Array2.length - 1
+
+  Js.log(getToday() ++ " Pending : " ++ Belt.Int.toString(pending) ++ " Completed : " ++ Belt.Int.toString(completed))
+}
 
 if isEmpty(~text=command, ()) {
   help()
