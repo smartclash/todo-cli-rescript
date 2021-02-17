@@ -37,20 +37,6 @@ external writeFileSync: (string, string, fsConfig) => unit = "writeFileSync"
 
 let encoding = "utf8"
 
-/*
-NOTE: The code below is provided just to show you how to use the
-date and file functions defined above. Remove it to begin your implementation.
-*/
-
-/* Js.log("Hello! today is " ++ getToday())
-
-if existsSync("todo.txt") {
-  Js.log("Todo file exists.")
-} else {
-  writeFileSync("todo.txt", "This is todo!" ++ eol, {encoding: encoding, flag: "w"})
-  Js.log("Todo file created.")
-} */
-
 type process = {argv: array<string>}
 @val external process: process = "process"
 
