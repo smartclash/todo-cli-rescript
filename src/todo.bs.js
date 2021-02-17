@@ -91,13 +91,14 @@ function addTodo(text) {
   updateFile(pendingTodoFile, (function (todos) {
           return todos.concat([text]);
         }));
-  console.log("Added todo: " + text);
+  console.log("Added todo: \"" + text + "\"");
   
 }
 
 function deleteTodo(index) {
   if (isEmpty(index, undefined)) {
-    console.log("Error: Missing NUMBER for deleting todo");
+    console.log("Error: Missing NUMBER for deleting todo.");
+    return ;
   }
   var todoIndex = Number(index);
   return updateFile(pendingTodoFile, (function (todos) {
@@ -115,16 +116,24 @@ function deleteTodo(index) {
 function markDone(index) {
   if (isEmpty(index, undefined)) {
     console.log("Error: Missing NUMBER for marking todo as done.");
+    return ;
   }
   var todoIndex = Number(index);
   var todos = readFile(pendingTodoFile);
   if (todoIndex < 1 || todoIndex > todos.length) {
-    console.log("Error: todo #$" + index + " does not exist.");
+    console.log("Error: todo #" + index + " does not exist.");
   }
   var completedTodo = todos.slice(todoIndex, 1);
   writeToFile(pendingTodoFile, todos);
   appendToFile(completedTodoFile, Caml_array.get(completedTodo, 0) + Os.EOL);
   console.log("Marked todo #" + index + " as done.");
+  
+}
+
+function report(param) {
+  var pending = readFile(pendingTodoFile).length - 1 | 0;
+  var completed = readFile(completedTodoFile).length - 1 | 0;
+  console.log(Curry._1(getToday, undefined) + " Pending : " + String(pending) + " Completed : " + String(completed));
   
 }
 
@@ -174,4 +183,5 @@ exports.list = list;
 exports.addTodo = addTodo;
 exports.deleteTodo = deleteTodo;
 exports.markDone = markDone;
+exports.report = report;
 /* argv Not a pure module */

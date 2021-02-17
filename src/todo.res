@@ -111,45 +111,46 @@ let addTodo = text => {
   }
 
   updateFile(pendingTodoFile, todos => todos->Js.Array2.concat([text]))
-  Js.log("Added todo: " ++ text)
+  Js.log("Added todo: \"" ++ text ++ "\"")
 }
 
 let deleteTodo = index => {
   if isEmpty(~text=index, ()) {
-    Js.log("Error: Missing NUMBER for deleting todo")
+    Js.log("Error: Missing NUMBER for deleting todo.")
+  } else {
+    let todoIndex = index->number
+    updateFile(pendingTodoFile, todos => {
+      if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
+        Js.log("Error: todo #" ++ index ++ " does not exist. Nothing deleted.")
+        todos
+      } else {
+        Js.log("Deleted todo #" ++ index)
+        let _ = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+        todos
+      }
+    })
   }
-
-  let todoIndex = index->number
-  updateFile(pendingTodoFile, todos => {
-    if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
-      Js.log("Error: todo #" ++ index ++ " does not exist. Nothing deleted.")
-      todos
-    } else {
-      Js.log("Deleted todo #" ++ index)
-      let _ = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
-      todos
-    }
-  })
 }
 
 let markDone = index => {
   if isEmpty(~text=index, ()) {
     Js.log(`Error: Missing NUMBER for marking todo as done.`)
+  } else {
+    let todoIndex = index->number
+    let todos = readFile(pendingTodoFile)
+
+    if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
+      Js.log("Error: todo #" ++ index ++ " does not exist.")
+    }
+
+    let completedTodo = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+    pendingTodoFile->writeToFile(todos)
+
+    completedTodoFile->appendToFile(completedTodo[0] ++ eol)
+    Js.log("Marked todo #" ++ index ++ " as done.")
   }
-
-  let todoIndex = index->number
-  let todos = readFile(pendingTodoFile)
-
-  if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
-    Js.log("Error: todo #$" ++ index ++ " does not exist.")
-  }
-
-  let completedTodo = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
-  pendingTodoFile->writeToFile(todos)
-
-  completedTodoFile->appendToFile(completedTodo[0] ++ eol)
-  Js.log("Marked todo #" ++ index ++ " as done.")
 }
+
 let report = () => {
   let pending = readFile(pendingTodoFile)->Js.Array2.length - 1
   let completed = readFile(completedTodoFile)->Js.Array2.length - 1
