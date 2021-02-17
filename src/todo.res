@@ -57,8 +57,8 @@ type process = {argv: array<string>}
 @val external number: (string) => int = "Number"
 
 let argv = process.argv
-let command = argv[2]
-let arg = argv[3]
+let command = argv->Js.Array2.length > 2 ? argv[2] : ""
+let arg = argv->Js.Array2.length > 3 ? argv[3] : ""
 let pendingTodoFile = "todo.txt"
 let completedTodoFile = "done.txt"
 

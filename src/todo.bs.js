@@ -19,9 +19,9 @@ var encoding = "utf8";
 
 var argv = process.argv;
 
-var command = Caml_array.get(argv, 2);
+var command = argv.length > 2 ? Caml_array.get(argv, 2) : "";
 
-var arg = Caml_array.get(argv, 3);
+var arg = argv.length > 3 ? Caml_array.get(argv, 3) : "";
 
 var pendingTodoFile = "todo.txt";
 
