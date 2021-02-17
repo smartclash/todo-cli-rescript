@@ -25,8 +25,11 @@ var arg = Caml_array.get(argv, 3);
 
 var pendingTodoFile = "todo.txt";
 
-function isEmpty(text) {
-  return text.trim().length > 0;
+var completedTodoFile = "done.txt";
+
+function isEmpty(textOpt, param) {
+  var text = textOpt !== undefined ? textOpt : "";
+  return text.trim().length <= 0;
 }
 
 function help(param) {
@@ -82,7 +85,7 @@ function list(param) {
 }
 
 function addTodo(text) {
-  if (isEmpty(text)) {
+  if (isEmpty(text, undefined)) {
     console.log("Error: Missing todo string. Nothing added!");
   }
   updateFile(pendingTodoFile, (function (todos) {
@@ -93,7 +96,7 @@ function addTodo(text) {
 }
 
 function deleteTodo(index) {
-  if (isEmpty(index)) {
+  if (isEmpty(index, undefined)) {
     console.log("Error: Missing NUMBER for deleting todo");
   }
   var todoIndex = Number(index);
@@ -103,12 +106,29 @@ function deleteTodo(index) {
                   return todos;
                 } else {
                   console.log("Deleted todo #" + index);
-                  return todos.slice(todoIndex, 1);
+                  todos.slice(todoIndex, 1);
+                  return todos;
                 }
               }));
 }
 
-if (isEmpty(command)) {
+function markDone(index) {
+  if (isEmpty(index, undefined)) {
+    console.log("Error: Missing NUMBER for marking todo as done.");
+  }
+  var todoIndex = Number(index);
+  var todos = readFile(pendingTodoFile);
+  if (todoIndex < 1 || todoIndex > todos.length) {
+    console.log("Error: todo #$" + index + " does not exist.");
+  }
+  var completedTodo = todos.slice(todoIndex, 1);
+  writeToFile(pendingTodoFile, todos);
+  appendToFile(completedTodoFile, Caml_array.get(completedTodo, 0) + Os.EOL);
+  console.log("Marked todo #" + index + " as done.");
+  
+}
+
+if (isEmpty(command, undefined)) {
   console.log(helpString);
 } else {
   var match = command.trim().toLowerCase();
@@ -120,7 +140,7 @@ if (isEmpty(command)) {
         deleteTodo(arg);
         break;
     case "done" :
-        console.log("done");
+        markDone(arg);
         break;
     case "help" :
         console.log(helpString);
@@ -135,8 +155,6 @@ if (isEmpty(command)) {
       console.log(helpString);
   }
 }
-
-var completedTodoFile = "done.txt";
 
 exports.helpString = helpString;
 exports.getToday = getToday;
@@ -155,4 +173,5 @@ exports.updateFile = updateFile;
 exports.list = list;
 exports.addTodo = addTodo;
 exports.deleteTodo = deleteTodo;
+exports.markDone = markDone;
 /* argv Not a pure module */

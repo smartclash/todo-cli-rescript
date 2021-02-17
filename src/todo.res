@@ -62,7 +62,10 @@ let arg = argv[3]
 let pendingTodoFile = "todo.txt"
 let completedTodoFile = "done.txt"
 
-let isEmpty = text => text->Js.String2.trim->Js.String2.length > 0
+let isEmpty: (~text: string=?, unit) => bool = (~text="", ()) => {
+  text->Js.String2.trim->Js.String2.length <= 0
+}
+
 let help = () => Js.log(helpString)
 
 let readFile = filename => {
@@ -103,7 +106,7 @@ let list = () => {
 }
 
 let addTodo = text => {
-  if isEmpty(text) {
+  if isEmpty(~text=text, ()) {
     Js.log("Error: Missing todo string. Nothing added!")
   }
 
@@ -112,7 +115,7 @@ let addTodo = text => {
 }
 
 let deleteTodo = index => {
-  if isEmpty(index) {
+  if isEmpty(~text=index, ()) {
     Js.log("Error: Missing NUMBER for deleting todo")
   }
 
@@ -123,12 +126,32 @@ let deleteTodo = index => {
       todos
     } else {
       Js.log("Deleted todo #" ++ index)
-      todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+      let _ = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+      todos
     }
   })
 }
 
-if isEmpty(command) {
+let markDone = index => {
+  if isEmpty(~text=index, ()) {
+    Js.log(`Error: Missing NUMBER for marking todo as done.`)
+  }
+
+  let todoIndex = index->number
+  let todos = readFile(pendingTodoFile)
+
+  if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
+    Js.log("Error: todo #$" ++ index ++ " does not exist.")
+  }
+
+  let completedTodo = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+  pendingTodoFile->writeToFile(todos)
+
+  completedTodoFile->appendToFile(completedTodo[0] ++ eol)
+  Js.log("Marked todo #" ++ index ++ " as done.")
+}
+
+if isEmpty(~text=command, ()) {
   help()
 } else {
   switch command->Js.String2.trim->Js.String2.toLowerCase {
@@ -136,7 +159,7 @@ if isEmpty(command) {
     | "ls" => list()
     | "add" => addTodo(arg)
     | "del" => deleteTodo(arg)
-    | "done" => Js.log("done")
+    | "done" => markDone(arg)
     | "report" => Js.log("report")
     | _ => help()
   }
