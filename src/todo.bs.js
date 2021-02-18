@@ -120,12 +120,14 @@ function markDone(index) {
   }
   var todoIndex = Number(index);
   var todos = readFile(pendingTodoFile);
-  if (todoIndex < 1 || todoIndex > todos.length) {
+  var todosLength = todos.length;
+  if (todoIndex < 1 || todoIndex > todosLength) {
     console.log("Error: todo #" + index + " does not exist.");
+    return ;
   }
-  var completedTodo = todos.slice(todoIndex, 1);
-  writeToFile(pendingTodoFile, todos);
-  appendToFile(completedTodoFile, Caml_array.get(completedTodo, 0) + Os.EOL);
+  var pendingTodos = todos.slice(todoIndex);
+  writeToFile(pendingTodoFile, pendingTodos);
+  appendToFile(completedTodoFile, Caml_array.get(todos, todoIndex - 1 | 0) + Os.EOL);
   console.log("Marked todo #" + index + " as done.");
   
 }
@@ -158,7 +160,7 @@ if (isEmpty(command, undefined)) {
         list(undefined);
         break;
     case "report" :
-        console.log("report");
+        report(undefined);
         break;
     default:
       console.log(helpString);

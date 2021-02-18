@@ -124,16 +124,17 @@ let markDone = index => {
   } else {
     let todoIndex = index->number
     let todos = readFile(pendingTodoFile)
+    let todosLength = todos->Js.Array2.length
 
-    if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
+    if (todoIndex < 1 || todoIndex > todosLength) {
       Js.log("Error: todo #" ++ index ++ " does not exist.")
+    } else {
+      let pendingTodos = todos->Js.Array2.sliceFrom(todoIndex)
+      pendingTodoFile->writeToFile(pendingTodos)
+
+      completedTodoFile->appendToFile(todos[todoIndex - 1] ++ eol)
+      Js.log("Marked todo #" ++ index ++ " as done.")
     }
-
-    let completedTodo = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
-    pendingTodoFile->writeToFile(todos)
-
-    completedTodoFile->appendToFile(completedTodo[0] ++ eol)
-    Js.log("Marked todo #" ++ index ++ " as done.")
   }
 }
 
@@ -153,7 +154,7 @@ if isEmpty(~text=command, ()) {
     | "add" => addTodo(arg)
     | "del" => deleteTodo(arg)
     | "done" => markDone(arg)
-    | "report" => Js.log("report")
+    | "report" => report()
     | _ => help()
   }
 }
