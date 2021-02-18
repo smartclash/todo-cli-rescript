@@ -8,12 +8,12 @@ var Caml_array = require("bs-platform/lib/js/caml_array.js");
 
 var helpString = "Usage :-\n$ ./todo add \"todo item\"  # Add a new todo\n$ ./todo ls               # Show remaining todos\n$ ./todo del NUMBER       # Delete a todo\n$ ./todo done NUMBER      # Complete a todo\n$ ./todo help             # Show usage\n$ ./todo report           # Statistics";
 
-var getToday = (function() {
-  let date = new Date();
-  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
-    .toISOString()
-    .split("T")[0];
-});
+function getToday(param) {
+  var date = new Date();
+  var rawDateInFloat = date.getTime() - date.getTimezoneOffset() * 60000;
+  var formatedFullDate = new Date(rawDateInFloat).toISOString();
+  return Caml_array.get(formatedFullDate.split("T"), 0);
+}
 
 var encoding = "utf8";
 
@@ -135,7 +135,7 @@ function markDone(index) {
 function report(param) {
   var pending = readFile(pendingTodoFile).length - 1 | 0;
   var completed = readFile(completedTodoFile).length - 1 | 0;
-  console.log(Curry._1(getToday, undefined) + " Pending : " + String(pending) + " Completed : " + String(completed));
+  console.log(getToday(undefined) + " Pending : " + String(pending) + " Completed : " + String(completed));
   
 }
 

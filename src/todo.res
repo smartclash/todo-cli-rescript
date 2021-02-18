@@ -6,15 +6,12 @@ $ ./todo done NUMBER      # Complete a todo
 $ ./todo help             # Show usage
 $ ./todo report           # Statistics";
 
-/* Returns date with the format: 2021-02-04 */
-let getToday: unit => string = %raw(`
-function() {
-  let date = new Date();
-  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
-    .toISOString()
-    .split("T")[0];
+let getToday = () => {
+  let date = Js.Date.make()
+  let rawDateInFloat = date->Js.Date.getTime -.  (date->Js.Date.getTimezoneOffset *. 60000.)
+  let formatedFullDate = rawDateInFloat->Js.Date.fromFloat->Js.Date.toISOString
+  (formatedFullDate->Js.String2.split("T"))[0]
 }
-  `)
 
 type fsConfig = {encoding: string, flag: string}
 
