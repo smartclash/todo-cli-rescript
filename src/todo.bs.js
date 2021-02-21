@@ -103,14 +103,15 @@ function deleteTodo(index) {
     console.log("Error: Missing NUMBER for deleting todo.");
     return ;
   }
-  var todoIndex = Number(index);
+  var num = Belt_Int.fromString(index);
+  var todoIndex = num !== undefined ? num : -1;
   return updateFile(pendingTodoFile, (function (todos) {
                 if (todoIndex < 1 || todoIndex > todos.length) {
                   console.log("Error: todo #" + index + " does not exist. Nothing deleted.");
                   return todos;
                 } else {
                   console.log("Deleted todo #" + index);
-                  todos.slice(todoIndex, 1);
+                  todos.splice(todoIndex - 1 | 0, 1);
                   return todos;
                 }
               }));

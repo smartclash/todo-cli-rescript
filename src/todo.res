@@ -103,14 +103,18 @@ let deleteTodo = index => {
   if isEmpty(~text=index, ()) {
     Js.log("Error: Missing NUMBER for deleting todo.")
   } else {
-    let todoIndex = index->number
+    let todoIndex = switch index->Belt.Int.fromString {
+      | Some(num) => num
+      | None => -1
+    }
+
     updateFile(pendingTodoFile, todos => {
       if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
         Js.log("Error: todo #" ++ index ++ " does not exist. Nothing deleted.")
         todos
       } else {
         Js.log("Deleted todo #" ++ index)
-        let _ = todos->Js.Array2.slice(~start=todoIndex, ~end_=1)
+        let _ = todos->Js.Array2.spliceInPlace(~pos=todoIndex - 1, ~remove=1, ~add=[])
         todos
       }
     })
