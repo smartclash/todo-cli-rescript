@@ -56,7 +56,9 @@ let readFile = filename => {
     []
   } else {
     let text = readFileSync(filename, {encoding: encoding, flag: "r"})
-    text->Js.String2.split(eol)
+    text
+      ->Js.String2.split(eol)
+      ->Js.Array2.filter(todo => !isEmpty(~text=todo, ()))
   }
 }
 
@@ -119,25 +121,30 @@ let markDone = index => {
   if isEmpty(~text=index, ()) {
     Js.log(`Error: Missing NUMBER for marking todo as done.`)
   } else {
-    let todoIndex = index->number
+    let todoIndex = switch index->Belt.Int.fromString {
+      | Some(num) => num
+      | None => -1
+    }
+
     let todos = readFile(pendingTodoFile)
     let todosLength = todos->Js.Array2.length
 
     if (todoIndex < 1 || todoIndex > todosLength) {
       Js.log("Error: todo #" ++ index ++ " does not exist.")
     } else {
-      let pendingTodos = todos->Js.Array2.sliceFrom(todoIndex)
-      pendingTodoFile->writeToFile(pendingTodos)
+      let completedTodo = todos->Js.Array2.spliceInPlace(~pos=todoIndex - 1, ~remove=1, ~add=[])
 
-      completedTodoFile->appendToFile(todos[todoIndex - 1] ++ eol)
+      pendingTodoFile->writeToFile(todos)
+      completedTodoFile->appendToFile(completedTodo[0] ++ eol)
+
       Js.log("Marked todo #" ++ index ++ " as done.")
     }
   }
 }
 
 let report = () => {
-  let pending = readFile(pendingTodoFile)->Js.Array2.length - 1
-  let completed = readFile(completedTodoFile)->Js.Array2.length - 1
+  let pending = readFile(pendingTodoFile)->Js.Array2.length
+  let completed = readFile(completedTodoFile)->Js.Array2.length
 
   Js.log(getToday() ++ " Pending : " ++ Belt.Int.toString(pending) ++ " Completed : " ++ Belt.Int.toString(completed))
 }

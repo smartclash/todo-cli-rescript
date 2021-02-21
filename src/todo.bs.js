@@ -4,6 +4,7 @@
 var Fs = require("fs");
 var Os = require("os");
 var Curry = require("bs-platform/lib/js/curry.js");
+var Belt_Int = require("bs-platform/lib/js/belt_Int.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 
 var helpString = "Usage :-\n$ ./todo add \"todo item\"  # Add a new todo\n$ ./todo ls               # Show remaining todos\n$ ./todo del NUMBER       # Delete a todo\n$ ./todo done NUMBER      # Complete a todo\n$ ./todo help             # Show usage\n$ ./todo report           # Statistics";
@@ -45,7 +46,9 @@ function readFile(filename) {
         encoding: encoding,
         flag: "r"
       });
-  return text.split(Os.EOL);
+  return text.split(Os.EOL).filter(function (todo) {
+              return !isEmpty(todo, undefined);
+            });
 }
 
 function appendToFile(filename, text) {
@@ -118,23 +121,24 @@ function markDone(index) {
     console.log("Error: Missing NUMBER for marking todo as done.");
     return ;
   }
-  var todoIndex = Number(index);
+  var num = Belt_Int.fromString(index);
+  var todoIndex = num !== undefined ? num : -1;
   var todos = readFile(pendingTodoFile);
   var todosLength = todos.length;
   if (todoIndex < 1 || todoIndex > todosLength) {
     console.log("Error: todo #" + index + " does not exist.");
     return ;
   }
-  var pendingTodos = todos.slice(todoIndex);
-  writeToFile(pendingTodoFile, pendingTodos);
-  appendToFile(completedTodoFile, Caml_array.get(todos, todoIndex - 1 | 0) + Os.EOL);
+  var completedTodo = todos.splice(todoIndex - 1 | 0, 1);
+  writeToFile(pendingTodoFile, todos);
+  appendToFile(completedTodoFile, Caml_array.get(completedTodo, 0) + Os.EOL);
   console.log("Marked todo #" + index + " as done.");
   
 }
 
 function report(param) {
-  var pending = readFile(pendingTodoFile).length - 1 | 0;
-  var completed = readFile(completedTodoFile).length - 1 | 0;
+  var pending = readFile(pendingTodoFile).length;
+  var completed = readFile(completedTodoFile).length;
   console.log(getToday(undefined) + " Pending : " + String(pending) + " Completed : " + String(completed));
   
 }
