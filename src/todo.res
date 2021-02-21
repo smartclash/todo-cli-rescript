@@ -37,8 +37,6 @@ let encoding = "utf8"
 type process = {argv: array<string>}
 @val external process: process = "process"
 
-@val external number: (string) => int = "Number"
-
 let argv = process.argv
 let command = argv->Js.Array2.length > 2 ? argv[2] : ""
 let arg = argv->Js.Array2.length > 3 ? argv[3] : ""
