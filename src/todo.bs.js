@@ -49,9 +49,9 @@ function readFile(filename) {
         encoding: encoding,
         flag: "r"
       });
-  return text.split(Os.EOL).filter(function (todo) {
-              return !isEmpty(todo, undefined);
-            });
+  return Belt_Array.keep(text.split(Os.EOL), (function (todo) {
+                return !isEmpty(todo, undefined);
+              }));
 }
 
 function appendToFile(filename, text) {
@@ -63,7 +63,9 @@ function appendToFile(filename, text) {
 }
 
 function writeToFile(filename, lines) {
-  var text = lines.join(Os.EOL);
+  var text = Belt_Array.reduce(lines, "", (function (acc, line) {
+          return acc + line + Os.EOL;
+        }));
   Fs.writeFileSync(filename, text, {
         encoding: encoding,
         flag: "w"
@@ -83,9 +85,9 @@ function list(param) {
   if (todosLength === 0) {
     console.log("There are no pending todos!");
   } else {
-    console.log(todos.reverse().map(function (todo, index) {
-                return "[" + String(todosLength - index | 0) + "] " + todo;
-              }).join("\n"));
+    console.log(Belt_Array.reduceWithIndex(Belt_Array.reverse(todos), "", (function (acc, todo, index) {
+                return acc + "[" + String(todosLength - index | 0) + "] " + todo + "\n";
+              })));
   }
   
 }
@@ -95,7 +97,7 @@ function addTodo(text) {
     console.log("Error: Missing todo string. Nothing added!");
   }
   updateFile(pendingTodoFile, (function (todos) {
-          return todos.concat([text]);
+          return Belt_Array.concat(todos, [text]);
         }));
   console.log("Added todo: \"" + text + "\"");
   

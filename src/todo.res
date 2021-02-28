@@ -60,14 +60,14 @@ let readFile = filename => {
     let text = readFileSync(filename, {encoding: encoding, flag: "r"})
     text
       ->Js.String2.split(eol)
-      ->Js.Array2.filter(todo => !isEmpty(~text=todo, ()))
+      ->Belt.Array.keep(todo => !isEmpty(~text=todo, ()))
   }
 }
 
 let appendToFile = (filename, text) => appendFileSync(filename, text, {encoding: encoding, flag: "a+"})
 
 let writeToFile = (filename, lines) => {
-  let text = lines->Js.Array2.joinWith(eol)
+  let text = lines->Belt.Array.reduce("", (acc, line) => acc ++ line ++ eol)
   filename->writeFileSync(text, {encoding: encoding, flag: "w"})
 }
 
@@ -79,15 +79,16 @@ let updateFile = (filename, updaterFn: (array<string>) => array<string>) => {
 
 let list = () => {
   let todos = readFile(pendingTodoFile)
-  let todosLength = todos->Js.Array2.length
+  let todosLength = todos->Belt.Array.length
 
   if todosLength == 0 {
     Js.log("There are no pending todos!")
   } else {
     todos
-      ->Js.Array2.reverseInPlace
-      ->Js.Array2.mapi((todo, index) => "[" ++ Belt.Int.toString(todosLength - index) ++ "] " ++ todo)
-      ->Js.Array2.joinWith("\n")
+      ->Belt.Array.reverse
+      ->Belt.Array.reduceWithIndex("", (acc, todo, index) => {
+        acc ++ "[" ++ Belt.Int.toString(todosLength - index) ++ "] " ++ todo ++ "\n"
+      })
       ->Js.log
   }
 }
@@ -97,7 +98,7 @@ let addTodo = text => {
     Js.log("Error: Missing todo string. Nothing added!")
   }
 
-  updateFile(pendingTodoFile, todos => todos->Js.Array2.concat([text]))
+  updateFile(pendingTodoFile, todos => todos->Belt.Array.concat([text]))
   Js.log("Added todo: \"" ++ text ++ "\"")
 }
 
@@ -111,7 +112,7 @@ let deleteTodo = index => {
     }
 
     updateFile(pendingTodoFile, todos => {
-      if (todoIndex < 1 || todoIndex > todos->Js.Array2.length) {
+      if (todoIndex < 1 || todoIndex > todos->Belt.Array.length) {
         Js.log("Error: todo #" ++ index ++ " does not exist. Nothing deleted.")
         todos
       } else {
@@ -133,7 +134,7 @@ let markDone = index => {
     }
 
     let todos = readFile(pendingTodoFile)
-    let todosLength = todos->Js.Array2.length
+    let todosLength = todos->Belt.Array.length
 
     if (todoIndex < 1 || todoIndex > todosLength) {
       Js.log("Error: todo #" ++ index ++ " does not exist.")
@@ -149,8 +150,8 @@ let markDone = index => {
 }
 
 let report = () => {
-  let pending = readFile(pendingTodoFile)->Js.Array2.length
-  let completed = readFile(completedTodoFile)->Js.Array2.length
+  let pending = readFile(pendingTodoFile)->Belt.Array.length
+  let completed = readFile(completedTodoFile)->Belt.Array.length
 
   Js.log(getToday() ++ " Pending : " ++ Belt.Int.toString(pending) ++ " Completed : " ++ Belt.Int.toString(completed))
 }
