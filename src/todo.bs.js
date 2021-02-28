@@ -5,6 +5,7 @@ var Fs = require("fs");
 var Os = require("os");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Belt_Int = require("bs-platform/lib/js/belt_Int.js");
+var Belt_Array = require("bs-platform/lib/js/belt_Array.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 
 var helpString = "Usage :-\n$ ./todo add \"todo item\"  # Add a new todo\n$ ./todo ls               # Show remaining todos\n$ ./todo del NUMBER       # Delete a todo\n$ ./todo done NUMBER      # Complete a todo\n$ ./todo help             # Show usage\n$ ./todo report           # Statistics";
@@ -18,11 +19,13 @@ function getToday(param) {
 
 var encoding = "utf8";
 
-var argv = process.argv;
+var cmd = Belt_Array.get(process.argv, 2);
 
-var command = argv.length > 2 ? Caml_array.get(argv, 2) : "";
+var command = cmd !== undefined ? cmd : "";
 
-var arg = argv.length > 3 ? Caml_array.get(argv, 3) : "";
+var argument = Belt_Array.get(process.argv, 3);
+
+var arg = argument !== undefined ? argument : "";
 
 var pendingTodoFile = "todo.txt";
 
@@ -175,7 +178,6 @@ if (isEmpty(command, undefined)) {
 exports.helpString = helpString;
 exports.getToday = getToday;
 exports.encoding = encoding;
-exports.argv = argv;
 exports.command = command;
 exports.arg = arg;
 exports.pendingTodoFile = pendingTodoFile;
@@ -191,4 +193,4 @@ exports.addTodo = addTodo;
 exports.deleteTodo = deleteTodo;
 exports.markDone = markDone;
 exports.report = report;
-/* argv Not a pure module */
+/* cmd Not a pure module */

@@ -32,14 +32,18 @@ external writeFileSync: (string, string, fsConfig) => unit = "writeFileSync"
 /* https://nodejs.org/api/os.html#os_os_eol */
 @bs.module("os") external eol: string = "EOL"
 
+@val @scope("process") external argv: array<string> = "argv"
+
 let encoding = "utf8"
 
-type process = {argv: array<string>}
-@val external process: process = "process"
-
-let argv = process.argv
-let command = argv->Js.Array2.length > 2 ? argv[2] : ""
-let arg = argv->Js.Array2.length > 3 ? argv[3] : ""
+let command = switch argv->Belt.Array.get(2) {
+  | Some(cmd) => cmd
+  | None => ""
+}
+let arg = switch argv->Belt.Array.get(3) {
+  | Some(argument) => argument
+  | None => ""
+}
 let pendingTodoFile = "todo.txt"
 let completedTodoFile = "done.txt"
 
